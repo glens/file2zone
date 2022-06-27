@@ -22,7 +22,7 @@ def makezone(args):
     with open(filename, 'rb') as infile:
     # todo: add a check for already compressed files, otherwise compress with zip
         infile_data = infile.read()
-        b64_infile = b64encode(infile_data)
+        b64_infile = str(b64encode(infile_data), "UTF-8")
         filehash = hashfile(infile_data)
         filesize = len(infile_data)
 
@@ -47,12 +47,12 @@ $ORIGIN %s.
 
     totalchunks = str(len(infile_chunked))
 
-    metainf = "%s %s %s" % (totalchunks, b64encode(filename), filehash)
+    metainf = "%s %s %s" % (totalchunks, str(b64encode(filename.encode("utf-8")), "utf-8"), filehash)
 
     # todo: work out max length for names below and put a warning into the script execution
 
-    script1 = b64encode('foreach($i in 1..%s){(Resolve-DNSName -type txt "$i.%s.%s").Strings|Out-File -encoding ascii -append out.b64}' % (totalchunks, subdomain, domain))
-    script2 = b64encode('Set-Content -Encoding Byte -Path out.bin -Value $([System.Convert]::FromBase64String($(Get-Content "out.b64")))')
+    script1 = str(b64encode(('foreach($i in 1..%s){(Resolve-DNSName -type txt "$i.%s.%s").Strings|Out-File -encoding ascii -append out.b64}' % (totalchunks, subdomain, domain)).encode("utf-8")), 'utf-8')
+    script2 = str(b64encode('Set-Content -Encoding Byte -Path out.bin -Value $([System.Convert]::FromBase64String($(Get-Content "out.b64")))'.encode("utf-8")), 'utf-8')
 
     if len(script1) > 255:
         sys.exit("Error: Encoded script1 record is too long!")
@@ -94,10 +94,10 @@ def outputzone(zonetext, args):
         with open(outfile, "w") as text_file:
             text_file.write(zonetext)
 
-        print "Zone written to %s" % outfile
+        print("Zone written to %s" % outfile)
 
     else:
-        print zonetext
+        print(zonetext)
 
 
 def hashfile(infile):
