@@ -46,12 +46,20 @@ You will need a domain pointing to a nameserver where you can create custom zone
 
 ### Downloading Files:
 
-Current helper scripts are for a windows system with powershell (*todo: more helper scripts for alternative clients*)
+Current helper scripts are for a windows system with powershell.
 
-1. Use a standard DNS query tool such as nslookup to query the TXT records at *s1.subdomain.domain.tld* and *s2.subdomain.domain.tld* - this will provide two onle liner helper scripts to download and decode the remote file
-2. Use a base64 decoding utility or the following powershell snippet to decode the base64 text:
+1. Use powershell or a standard DNS query tool such as nslookup to query the TXT records at *s1.subdomain.domain.tld* and *s2.subdomain.domain.tld* - this will provide two one liner helper scripts to download and decode the remote file
+
 ```
-System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String("BASE64STRINGHERE"))
+Resolve-DnsName -Type txt -name s1.subdomain.domain.tld
+nslookup -type=txt s1.subdomain.domain.tld
+```
+
+2. Use a base64 decoding utility like certutil.exe, or the following powershell snippet to decode the base64 text:
+```
+certutil -decode base64_encoded_file.txt file_to_output_decoded_text.txt
+
+[System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String("BASE64STRINGHERE"))
 ```
 3. Run helper script 1 (s1) to download the file (to: 'out.b64')
 4. Run helper script 2 (s2) to decode out.b64 and save to out.bin
@@ -67,7 +75,7 @@ foreach($i in 1..500){(Resolve-DNSName -type txt "$i.subdomain.domain.tld").Stri
 ```
 #### Powershell Helper Script (s2): Decode downloaded Base64 file
 ```
-Set-Content -Encoding Byte -Path out.bin -Value $([System.Convert]::FromBase64String($(Get-Content "out.b64"))
+Set-Content -Encoding Byte -Path out.bin -Value $([System.Convert]::FromBase64String($(Get-Content "out.b64")))
 ```
 
 ## Constraints
@@ -75,7 +83,9 @@ Set-Content -Encoding Byte -Path out.bin -Value $([System.Convert]::FromBase64St
 * For greater compatability with various DNS servers, TXT record length has been constrained to 256 chars.
 
 
-
+## To-do:
+* More helper scripts for alternative clients
+* Integrate zip file compression
 
 
 
